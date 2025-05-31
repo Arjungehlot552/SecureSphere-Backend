@@ -54,18 +54,19 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
     const isPasswordValid = await user.matchPassword(password);
-    if (!isPasswordValid)
-      return res.status(400).json({ error: "Invalid Password." });
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: "Invalid password." });
+    }
 
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
@@ -79,14 +80,15 @@ const loginUser = async (req, res) => {
         username: user.username,
         email: user.email,
       },
-      accessToken,     
-      refreshToken,    
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 const logoutUser = async (req, res) => {
   try {
